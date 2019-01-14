@@ -12,4 +12,6 @@ public interface InputProvider {
     public Answer getNextInput(Question question);
 
     public File generate(File file) throws IOException;
+
+
 }

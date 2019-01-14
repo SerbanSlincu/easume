@@ -1,3 +1,5 @@
+import java.io.IOException;
+
 /** Way to test every component
  */
 
@@ -54,7 +56,7 @@ public class Testing {
         System.out.println();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println("....................................");
         System.out.println("Beginning the initial testing phase!");
         System.out.println("....................................");

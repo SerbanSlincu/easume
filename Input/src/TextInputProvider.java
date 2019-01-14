@@ -11,6 +11,7 @@ public class TextInputProvider implements InputProvider {
     private Scanner input = new Scanner(System.in);
 
     private LinkedList <Answer> previousInputs = new LinkedList<>();
+    private int takeAtIndex = 0;
 
     @Override
     public Answer getNextInput() {
@@ -28,18 +29,52 @@ public class TextInputProvider implements InputProvider {
         return getNextInput();
     }
 
+    // Compile the LaTeX code
+    private void toPdf(File file) throws IOException {
+        String[] command = {"xterm", "-e", "pdflatex", "-output-directory" + file.getParentFile() + "/", file.getAbsolutePath()};
+        Process proc = new ProcessBuilder(command).start();
+
+    }
+
+    private String analyse(String input) {
+        String text = "";
+
+        for(int i = 0; i < input.length(); i ++) {
+            if(i + 1 < input.length() && input.charAt(i) == '!' && input.charAt(i + 1) == '(') {
+                int j = i + 1;
+
+                while(input.charAt(j) != ')' && j < input.length()) {
+                    j += 1;
+                }
+                if(j >= input.length()) {
+                    throw new Error("The template has been corrupted");
+                }
+
+                text += this.previousInputs.get(takeAtIndex).getAnswer();
+                this.takeAtIndex += 1;
+
+                i = j;
+            }
+            else {
+                text += input.charAt(i);
+            }
+        }
+
+        return text;
+    }
+
     @Override
     public File generate(File file) throws IOException {
+        this.takeAtIndex = 0;
         String text = "";
 
         FileReader fileReader = new FileReader(file);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
-        String line;
+        String line = bufferedReader.readLine();
 
-        for(Answer answer : previousInputs) {
-            if((line = bufferedReader.readLine()) != null) {
-                text += line + answer.getAnswer() + "\n";
-            }
+        while(line != null) {
+            text += analyse(line) + "\n";
+            line = bufferedReader.readLine();
         }
 
         bufferedReader.close();
@@ -52,7 +87,11 @@ public class TextInputProvider implements InputProvider {
         printWriter.close();
         fileWriter.close();
 
-        System.out.println("File created at: " + file.getAbsolutePath());
+        System.out.println("LaTeX file created at: " + file.getAbsolutePath());
+
+        this.toPdf(file);
+        System.out.println("PDF created at: " + file.getAbsolutePath() + ".pdf");
+
         return file;
     }
 }

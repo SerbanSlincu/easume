@@ -19,6 +19,9 @@ public interface TemplateProvider {
     // get sizeOf list of questions
     public Integer sizeOf();
 
+    // get the name of the generated file
+    public String getGeneratedName();
+
     // generate file in generic location
     public File generate() throws IOException;
 

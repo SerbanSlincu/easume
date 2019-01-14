@@ -3,7 +3,7 @@ The process of creating a good looking resume or CV might be tiring if using \La
 
 # General Todo List:
 - [ ] Come up with a better name
-- [ ] Plan the initial structure
+- [x] Plan the initial structure
 - [ ] Text version
 - [ ] GUI version
 - [ ] Move to Android

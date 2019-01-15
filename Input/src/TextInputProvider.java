@@ -16,9 +16,9 @@ public class TextInputProvider implements InputProvider {
     @Override
     public Answer getNextInput() {
         System.out.print(" > ");
-        Answer nextInput = new Answer(input.next());
+        Answer nextInput = new Answer(this.input.nextLine());
 
-        previousInputs.add(nextInput);
+        this.previousInputs.add(nextInput);
 
         return nextInput;
     }
@@ -26,16 +26,31 @@ public class TextInputProvider implements InputProvider {
     @Override
     public Answer getNextInput(Question question) {
         question.print();
-        return getNextInput();
+        return this.getNextInput();
     }
 
     // Compile the LaTeX code
+    // Delete everything else
     private void toPdf(File file) throws IOException {
-        String[] command = {"xterm", "-e", "pdflatex", "-output-directory" + file.getParentFile() + "/", file.getAbsolutePath()};
+        String nameOfFile = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("/") + 1);
+        String[] command = {"xterm", "-e", "pdflatex", file.getAbsolutePath()};
         Process proc = new ProcessBuilder(command).start();
+        System.out.println("PDF created at: " + file.getAbsolutePath() + ".pdf");
 
+        //TODO: delete the adjacent files
+        File log = new File(file.getParentFile() + "/" + nameOfFile + ".log");
+        log.delete();
+        System.out.println(".log file deleted");
+
+        File aux = new File(file.getParentFile() + "/" + nameOfFile + ".aux");
+        aux.delete();
+        System.out.println(".aux file deleted");
+
+        //file.delete();
+        //System.out.println(".tex file deleted");
     }
 
+    // Replace the questions with the answers
     private String analyse(String input) {
         String text = "";
 
@@ -50,7 +65,7 @@ public class TextInputProvider implements InputProvider {
                     throw new Error("The template has been corrupted");
                 }
 
-                text += this.previousInputs.get(takeAtIndex).getAnswer();
+                text += this.previousInputs.get(this.takeAtIndex).getAnswer();
                 this.takeAtIndex += 1;
 
                 i = j;
@@ -90,8 +105,6 @@ public class TextInputProvider implements InputProvider {
         System.out.println("LaTeX file created at: " + file.getAbsolutePath());
 
         this.toPdf(file);
-        System.out.println("PDF created at: " + file.getAbsolutePath() + ".pdf");
-
         return file;
     }
 }

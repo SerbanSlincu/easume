@@ -11,6 +11,8 @@ public interface InputProvider {
 
     public Answer getNextInput(Question question);
 
+    // Get a copy of the template
+    // and replace the questions with the answers
     public File generate(File file) throws IOException;
 
 

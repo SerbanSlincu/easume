@@ -9,7 +9,7 @@ public class Question {
     }
 
     public String getQuestion() {
-        return question;
+        return this.question;
     }
 
     public void setQuestion(String question) {
@@ -27,13 +27,13 @@ public class Question {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || this.getClass() != o.getClass()) return false;
         Question question1 = (Question) o;
-        return question.equals(question1.question);
+        return this.question.equals(question1.question);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(question);
+        return Objects.hash(this.question);
     }
 }

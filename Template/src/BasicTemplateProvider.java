@@ -1,5 +1,4 @@
-/** This should decide the output.
- *  TODO: add initialisation from file
+/** This should decide the format of the output.
  */
 
 import org.jetbrains.annotations.NotNull;
@@ -22,18 +21,18 @@ public class BasicTemplateProvider implements TemplateProvider {
     private String genericPath;
     private String currentTime;
 
-    public BasicTemplateProvider() throws IOException {
-        initialise();
+    public BasicTemplateProvider(String templateName) throws IOException {
+        initialise(templateName);
     }
 
-    private void initialise() throws IOException {
+    private void initialise(String templateName) throws IOException {
         this.fileSeparator = System.getProperty("file.separator");
-        this.template = System.getProperty("user.dir") + fileSeparator + "Template" + fileSeparator + "src" + fileSeparator + "BasicTemplate.tex";
+        this.template = System.getProperty("user.dir") + this.fileSeparator + "Template" + this.fileSeparator + "src" + this.fileSeparator + templateName + ".tex";
         this.order = this.getOrderList(this.template);
         this.index = 0;
         this.fileName = "resume";
         this.generatedName = "";
-        this.genericPath = System.getProperty("user.home") + fileSeparator;
+        this.genericPath = System.getProperty("user.dir") + this.fileSeparator;
 
         Date date = new Date();
         String strDateFormat = "hh:mm:ss a";
@@ -41,6 +40,8 @@ public class BasicTemplateProvider implements TemplateProvider {
         this.currentTime = dateFormat.format(date);
     }
 
+    // Get the list of questions from the template
+    @NotNull
     private Question[] getOrderList(String templateName) throws IOException {
         LinkedList<Question> questions = new LinkedList<Question>();
 
@@ -128,6 +129,7 @@ public class BasicTemplateProvider implements TemplateProvider {
         return this.generatedName;
     }
 
+    // Make a copy of the template
     private File writeCurrent(String path) throws IOException {
         File file = new File(path);
         FileWriter fileWriter = new FileWriter(file.getAbsolutePath());

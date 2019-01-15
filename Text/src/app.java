@@ -12,7 +12,7 @@ public class app {
 
     public static void main(String[] args) throws IOException {
         inputProvider = new TextInputProvider();
-        templateProvider = new BasicTemplateProvider();
+        templateProvider = new BasicTemplateProvider("BasicTemplate");
 
         for(int index = 0; index < templateProvider.sizeOf(); index ++) {
             Question question = templateProvider.getNextItem();

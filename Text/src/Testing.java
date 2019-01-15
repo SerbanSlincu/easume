@@ -62,7 +62,7 @@ public class Testing {
         System.out.println("....................................");
 
         inputProvider = new TextInputProvider();
-        templateProvider = new BasicTemplateProvider();
+        templateProvider = new BasicTemplateProvider("BasicTemplate");
 
         testingInput();
         testingTemplate();

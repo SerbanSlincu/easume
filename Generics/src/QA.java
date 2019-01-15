@@ -19,10 +19,10 @@ public class QA {
     }
 
     public Question getQuestion() {
-        return question;
+        return this.question;
     }
 
     public Answer getAnswer() {
-        return answer;
+        return this.answer;
     }
 }

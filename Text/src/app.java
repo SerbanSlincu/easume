@@ -20,7 +20,7 @@ public class app {
         }
 
         File output = templateProvider.generate();
-        output = inputProvider.generate(output);
+        inputProvider.generate(output);
         System.exit(0);
     }
 }

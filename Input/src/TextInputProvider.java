@@ -13,41 +13,30 @@ public class TextInputProvider implements InputProvider {
     private LinkedList <Answer> previousInputs = new LinkedList<>();
     private int takeAtIndex = 0;
 
-    @Override
-    public Answer getNextInput() {
-        System.out.print(" > ");
-        Answer nextInput = new Answer(this.input.nextLine());
-
-        this.previousInputs.add(nextInput);
-
-        return nextInput;
-    }
-
-    @Override
-    public Answer getNextInput(Question question) {
-        question.print();
-        return this.getNextInput();
-    }
-
-    // Compile the LaTeX code
+    // Compile the LaTeX code into PDF
     // Delete everything else
     private void toPdf(File file) throws IOException {
-        String nameOfFile = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("/") + 1);
+        String fileSeparator = System.getProperty("file.separator");
+        String nameOfFile = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(fileSeparator) + 1);
         String[] command = {"xterm", "-e", "pdflatex", file.getAbsolutePath()};
         Process proc = new ProcessBuilder(command).start();
+        try {
+            proc.waitFor();
+        } catch (InterruptedException e) {
+            throw new Error("PDF file could not be created.");
+        }
         System.out.println("PDF created at: " + file.getAbsolutePath() + ".pdf");
 
-        //TODO: delete the adjacent files
-        File log = new File(file.getParentFile() + "/" + nameOfFile + ".log");
+        File log = new File(file.getParentFile() + fileSeparator + nameOfFile + ".log");
         log.delete();
-        System.out.println(".log file deleted");
+        System.out.println("Deleted the log file from: " + file.getParentFile() + fileSeparator + nameOfFile + ".log");
 
-        File aux = new File(file.getParentFile() + "/" + nameOfFile + ".aux");
+        File aux = new File(file.getParentFile() + fileSeparator + nameOfFile + ".aux");
         aux.delete();
-        System.out.println(".aux file deleted");
+        System.out.println("Deleted the aux file from: " + file.getParentFile() + fileSeparator + nameOfFile + ".aux");
 
-        //file.delete();
-        //System.out.println(".tex file deleted");
+        file.delete();
+        System.out.println("Deleted the tex file from: " + file.getParentFile() + fileSeparator + nameOfFile);
     }
 
     // Replace the questions with the answers
@@ -79,7 +68,23 @@ public class TextInputProvider implements InputProvider {
     }
 
     @Override
-    public File generate(File file) throws IOException {
+    public Answer getNextInput() {
+        System.out.print(" > ");
+        Answer nextInput = new Answer(this.input.nextLine());
+
+        this.previousInputs.add(nextInput);
+
+        return nextInput;
+    }
+
+    @Override
+    public Answer getNextInput(Question question) {
+        question.print();
+        return this.getNextInput();
+    }
+
+    @Override
+    public void generate(File file) throws IOException {
         this.takeAtIndex = 0;
         String text = "";
 
@@ -105,6 +110,5 @@ public class TextInputProvider implements InputProvider {
         System.out.println("LaTeX file created at: " + file.getAbsolutePath());
 
         this.toPdf(file);
-        return file;
     }
 }

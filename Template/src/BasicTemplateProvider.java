@@ -89,6 +89,29 @@ public class BasicTemplateProvider implements TemplateProvider {
         throw new Error("There is no entry " + entry.getQuestion() + " in the template.");
     }
 
+    // Make a copy of the template
+    private File writeCurrent(String path) throws IOException {
+        File file = new File(path);
+        FileWriter fileWriter = new FileWriter(file.getAbsolutePath());
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+
+        InputStream inputStream = new FileInputStream(this.template);
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        String line = bufferedReader.readLine();
+
+        while(line != null) {
+            printWriter.print(line + "\n");
+            line = bufferedReader.readLine();
+        }
+
+        bufferedReader.close();
+        inputStream.close();
+        printWriter.close();
+        fileWriter.close();
+
+        return file;
+    }
+
     @Override
     public Question getNextItem() {
         if(this.index >= sizeOf()) {
@@ -127,29 +150,6 @@ public class BasicTemplateProvider implements TemplateProvider {
             throw new Error("The file has not been generated yet!");
         }
         return this.generatedName;
-    }
-
-    // Make a copy of the template
-    private File writeCurrent(String path) throws IOException {
-        File file = new File(path);
-        FileWriter fileWriter = new FileWriter(file.getAbsolutePath());
-        PrintWriter printWriter = new PrintWriter(fileWriter);
-
-        InputStream inputStream = new FileInputStream(this.template);
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        String line = bufferedReader.readLine();
-
-        while(line != null) {
-            printWriter.print(line + "\n");
-            line = bufferedReader.readLine();
-        }
-
-        bufferedReader.close();
-        inputStream.close();
-        printWriter.close();
-        fileWriter.close();
-
-        return file;
     }
 
     @Override

@@ -13,7 +13,7 @@ public interface InputProvider {
 
     // Get a copy of the template
     // and replace the questions with the answers
-    public File generate(File file) throws IOException;
+    public void generate(File file) throws IOException;
 
 
 }

@@ -1,7 +1,8 @@
-import java.io.IOException;
-
-/** Way to test every component
+/** Should be a way to test every component
+ *  Left like this until unit tests(?)
  */
+
+import java.io.IOException;
 
 public class Testing {
 

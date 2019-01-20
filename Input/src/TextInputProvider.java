@@ -2,6 +2,8 @@
  *  This should be used only as a testing method.
  */
 
+import groovy.lang.IntRange;
+
 import java.io.*;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -9,6 +11,13 @@ import java.util.Scanner;
 public class TextInputProvider implements InputProvider {
 
     private Scanner input = new Scanner(System.in);
+
+    // repeat the questions between begin and end
+    private LinkedList<LinkedList<Question>> repeats= new LinkedList<LinkedList<Question>>();
+
+    public TextInputProvider() {
+        repeats.push(new LinkedList<Question>());
+    }
 
     private LinkedList <Answer> previousInputs = new LinkedList<>();
     private int takeAtIndex = 0;
@@ -67,8 +76,7 @@ public class TextInputProvider implements InputProvider {
         return text;
     }
 
-    @Override
-    public Answer getNextInput() {
+    private Answer getNextInputWithoutStoring() {
         System.out.print(" > ");
         Answer nextInput = new Answer(this.input.nextLine());
 
@@ -78,9 +86,43 @@ public class TextInputProvider implements InputProvider {
     }
 
     @Override
+    public Answer getNextInput() {
+        Answer answer = this.getNextInputWithoutStoring();
+        this.previousInputs.add(answer);
+        return answer;
+    }
+
+    @Override
     public Answer getNextInput(Question question) {
-        question.print();
-        return this.getNextInput();
+        // add the current question to the current level
+        // when 'end', move level up
+        if(question.getQuestion().equals("begin")) {
+            repeats.add(new LinkedList<Question>());
+            return new Answer("");
+        } else if(question.getQuestion().equals("end")) {
+            while(true) {
+                (new Question("Would you like a new instance of " + repeats.getLast().getFirst().getQuestion() + "?")).print();
+                Answer answer = getNextInputWithoutStoring();
+                if(answer.getAnswer().equals("no")) {
+                    repeats.get(repeats.size() - 2).add(new Question("begin"));
+                    for(Question q : repeats.getLast()) {
+                        repeats.get(repeats.size() - 2).add(q);
+                    }
+                    repeats.removeLast();
+                    repeats.get(repeats.size() - 2).add(new Question("end"));
+                    return new Answer("");
+                } else if (answer.getAnswer().equals("yes")) {
+                    LinkedList<Question> now = repeats.getLast();
+                    for(Question q : now) {
+                        this.getNextInput(q);
+                    }
+                }
+            }
+        } else {
+            repeats.getLast().add(question);
+            question.print();
+            return this.getNextInput();
+        }
     }
 
     @Override

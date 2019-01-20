@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -64,7 +65,18 @@ public class BasicTemplateProvider implements TemplateProvider {
                         throw new Error("The template has been corrupted!");
                     }
 
-                    questions.add(new Question(question));
+                    // This could represent multiple arguments
+                    String[] parameters = question.split(",");
+                    if(parameters.length > 1) {
+                        questions.add(new Question("begin"));
+                        questions.add(new Question(question.substring(0, question.length() - 2)));
+                    } else if(question.length() == 0) {
+                        questions.add(new Question("end"));
+                    }
+                    else {
+                        questions.add(new Question(question));
+                    }
+
                     i = j;
                 }
             }

@@ -1,9 +1,9 @@
-# special-octo-garbanzo
+# special-octo-garbanzo -- easumé
 The process of creating a good looking resume or CV might be tiring if using \LaTeX. This app will focus on how to automate that activity.
 
 # General Todo List:
 - [x] Plan the initial structure
-- [ ] Come up with a better name
+- [x] Come up with a better name: easumé (as in easy + résumé)
 - [ ] Text version
 - [x] Check user input
 - [x] Delete generated files (aux and log)

@@ -36,7 +36,7 @@ public class BasicTemplateProvider implements TemplateProvider {
         this.genericPath = System.getProperty("user.dir") + this.fileSeparator;
 
         Date date = new Date();
-        String strDateFormat = "hh:mm:ss a";
+        String strDateFormat = "hh:mm:ss";
         DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
         this.currentTime = dateFormat.format(date);
     }

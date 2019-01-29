@@ -22,18 +22,14 @@ public class BasicTemplateProvider implements TemplateProvider {
     private String currentTime;
 
     public BasicTemplateProvider(String templateName) throws IOException {
-        initialise(templateName);
-    }
-
-    private void initialise(String templateName) throws IOException {
         this.fileSeparator = System.getProperty("file.separator");
         this.template = System.getProperty("user.dir") + this.fileSeparator + "Template" + this.fileSeparator + "src" + this.fileSeparator + templateName + ".tex";
-        this.modified = "modified";
-        this.order = this.getOrderList(this.template);
-        this.index = 0;
         this.fileName = "resume";
+        this.modified = "modified-template";
         this.generatedName = "";
         this.genericPath = System.getProperty("user.dir") + this.fileSeparator;
+        this.order = this.getOrderList(template);
+        this.index = 0;
 
         Date date = new Date();
         String strDateFormat = "hh:mm:ss";
@@ -44,24 +40,30 @@ public class BasicTemplateProvider implements TemplateProvider {
     // Get the list of questions from the template
     @NotNull
     private Question[] getOrderList(String templateName) throws IOException {
+        // used for repeating details
+        Scanner scanner = new Scanner(System.in);
         Stack<String> remainedLines = new Stack<>();
 
-        File modified = new File("modified");
-        FileWriter fileWriter = new FileWriter(modified.getAbsolutePath());
-        PrintWriter printWriter = new PrintWriter(fileWriter);
+        // file will be here at the end
+        LinkedList<String> modified = new LinkedList<>();
+        // where to do additions
+        int currently = 0;
 
+        // list of details
         LinkedList<Question> questions = new LinkedList<Question>();
         InputStream inputStream = new FileInputStream(templateName);
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         int readLines = 0;
 
         String line = bufferedReader.readLine();
-        printWriter.print(line + "\n");
+        modified.add(line);
+        currently += 1;
 
         while(line != null) {
             // used for repeating details
             readLines += 1;
 
+            if(line.length() > 0 && !line.contains("%!(END"))
             for (int i = 1; i < line.length(); i++) {
                 if (line.charAt(i) == '(' && line.charAt(i - 1) == '!') {
                     String question = "";
@@ -78,26 +80,40 @@ public class BasicTemplateProvider implements TemplateProvider {
                     // This could represent a repeating detail
                     String[] parameters = question.split(",");
                     if (parameters.length == 2 && parameters[0].equals("REPEAT")) {
-                        // repeat n times
-                        String toWrite = "";
+                        // repeat many times
+                        LinkedList<String> toWrite = new LinkedList<>();
 
-                        Stack<String> helper = new Stack<>();
-                        String line2 = bufferedReader.readLine();
-                        while (!line2.equals("")) {
-                            helper.push(line2);
-
-                            toWrite += line2 + "\n";
+                        int last = remainedLines.size() - 1;
+                        String line2;
+                        if(remainedLines.size() > 0) {
+                            line2 = remainedLines.get(last);
+                            last --;
+                        } else {
                             line2 = bufferedReader.readLine();
                         }
 
-                        int many = 2;
+                        while (!line2.contains("%!(END," + parameters[1] + ")")) {
+                            toWrite.add(line2 + "\n");
+                            if(remainedLines.size() > 0) {
+                                line2 = remainedLines.get(last);
+                                last --;
+                            } else {
+                                line2 = bufferedReader.readLine();
+                            }
+                        }
+
+                        System.out.println("How many " + parameters[1] + " would you like?");
+                        int many = scanner.nextInt();
+                        // hack to fix off by one logic
+                        if(remainedLines.size() > 0) many --;
+
                         for (int times = 0; times < many; times++) {
-                            printWriter.print(toWrite);
+                            modified.addAll(currently,toWrite);
                         }
 
                         for(int times = 0; times < many; times ++) {
-                            for (int counter = helper.size() - 1; counter >= 0; counter--) {
-                                remainedLines.push(helper.elementAt(counter));
+                            for (int counter = toWrite.size() - 1; counter >= 0; counter --) {
+                                remainedLines.push(toWrite.get(counter));
                             }
                         }
                     } else if (parameters.length == 0) {
@@ -108,19 +124,26 @@ public class BasicTemplateProvider implements TemplateProvider {
                     i = j;
                 }
             }
+            // use from before, if any
             if (!remainedLines.empty()) {
                 line = remainedLines.pop();
+                currently += 1;
             } else {
                 line = bufferedReader.readLine();
-                printWriter.print(line + "\n");
+                modified.add(line + "\n");
+                currently += 1;
             }
         }
 
         bufferedReader.close();
         inputStream.close();
+
+        File modifiedFile = new File(this.modified);
+        FileWriter fileWriter = new FileWriter(modifiedFile);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        for(String now : modified) { printWriter.print(now); }
         printWriter.close();
         fileWriter.close();
-
 
         return questions.toArray(new Question[0]);
     }
@@ -148,7 +171,8 @@ public class BasicTemplateProvider implements TemplateProvider {
         String line = bufferedReader.readLine();
 
         while(line != null) {
-            printWriter.print(line + "\n");
+            if(!line.equals("") && !line.equals("null"))
+                printWriter.print(line + "\n");
             line = bufferedReader.readLine();
         }
 
@@ -156,6 +180,10 @@ public class BasicTemplateProvider implements TemplateProvider {
         inputStream.close();
         printWriter.close();
         fileWriter.close();
+
+        File toDelete = new File(file.getParentFile() + fileSeparator + this.modified);
+        toDelete.delete();
+        System.out.println("Deleted the aux file from: " + file.getParentFile() + fileSeparator + this.modified);
 
         return file;
     }

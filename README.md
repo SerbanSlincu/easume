@@ -4,11 +4,11 @@ The process of creating a good looking resume or CV might be tiring if using \La
 # General Todo List:
 - [x] Plan the initial structure
 - [x] Come up with a better name: easumé (as in easy + résumé)
-- [ ] Text version
+- [x] Text version
 - [x] Check user input
 - [x] Delete generated files (aux and log)
 - [x] Delete tex file and check for notNull
-- [ ] Make templates customizable by the user
+- [x] Make templates customizable by the user
 - [ ] GUI version
 - [ ] Move to Android
 
@@ -18,7 +18,9 @@ There are no tests for the functionality of the application. This is because I f
 When created, all parts worked together in a nice way and, because I do not offer a too complex problem and the space of what might go wrong is not that big, I will limit myself to not creating any tests until further notice.
 
 ##### About the creation of templates
-The customisable details can have one of the following shapes:
 * !(NAME)
-* !(NAME,R)
-Really, the only difference is that the second one means the detail can be repeated as many time as the user wants. Everything until the closing matching !() will be repeated.
+* !(REPEAT,NAME)
+* !(END,NAME)
+The first one declares a new detail. It is used in order to help/make the user enter some input.
+The second and third ones *must* come together. They are used in the template before and after the block representing the detail.
+If in confusion, please see the example: BasicTemplate.tex .

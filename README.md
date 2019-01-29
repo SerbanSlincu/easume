@@ -19,8 +19,9 @@ When created, all parts worked together in a nice way and, because I do not offe
 
 ##### About the creation of templates
 * !(NAME)
-* !(REPEAT,NAME)
-* !(END,NAME)
+* %!(REPEAT,NAME)
+* %!(END,NAME)
 The first one declares a new detail. It is used in order to help/make the user enter some input.
 The second and third ones *must* come together. They are used in the template before and after the block representing the detail.
+One key thing to note is that they need to be preceded by % (comments in LaTeX).
 If in confusion, please see the example: BasicTemplate.tex .

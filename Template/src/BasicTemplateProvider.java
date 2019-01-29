@@ -6,9 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 
 public class BasicTemplateProvider implements TemplateProvider {
 
@@ -19,6 +17,7 @@ public class BasicTemplateProvider implements TemplateProvider {
     private String generatedName;
     private String fileSeparator;
     private String template;
+    private String modified;
     private String genericPath;
     private String currentTime;
 
@@ -29,6 +28,7 @@ public class BasicTemplateProvider implements TemplateProvider {
     private void initialise(String templateName) throws IOException {
         this.fileSeparator = System.getProperty("file.separator");
         this.template = System.getProperty("user.dir") + this.fileSeparator + "Template" + this.fileSeparator + "src" + this.fileSeparator + templateName + ".tex";
+        this.modified = "modified";
         this.order = this.getOrderList(this.template);
         this.index = 0;
         this.fileName = "resume";
@@ -44,47 +44,83 @@ public class BasicTemplateProvider implements TemplateProvider {
     // Get the list of questions from the template
     @NotNull
     private Question[] getOrderList(String templateName) throws IOException {
-        LinkedList<Question> questions = new LinkedList<Question>();
+        Stack<String> remainedLines = new Stack<>();
 
+        File modified = new File("modified");
+        FileWriter fileWriter = new FileWriter(modified.getAbsolutePath());
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+
+        LinkedList<Question> questions = new LinkedList<Question>();
         InputStream inputStream = new FileInputStream(templateName);
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        int readLines = 0;
 
         String line = bufferedReader.readLine();
+        printWriter.print(line + "\n");
 
         while(line != null) {
-            for(int i = 1; i < line.length(); i ++) {
-                if(line.charAt(i) == '(' && line.charAt(i - 1) == '!') {
+            // used for repeating details
+            readLines += 1;
+
+            for (int i = 1; i < line.length(); i++) {
+                if (line.charAt(i) == '(' && line.charAt(i - 1) == '!') {
                     String question = "";
 
                     int j = i + 1;
-                    while(line.charAt(j) != ')' && j < line.length()) {
+                    while (line.charAt(j) != ')' && j < line.length()) {
                         question += line.charAt(j);
                         j += 1;
                     }
-                    if(j >= line.length()) {
+                    if (j >= line.length()) {
                         throw new Error("The template has been corrupted!");
                     }
 
-                    // This could represent multiple arguments
+                    // This could represent a repeating detail
                     String[] parameters = question.split(",");
-                    if(parameters.length > 1) {
-                        questions.add(new Question("begin"));
-                        questions.add(new Question(question.substring(0, question.length() - 2)));
-                    } else if(question.length() == 0) {
-                        questions.add(new Question("end"));
-                    }
-                    else {
+                    if (parameters.length == 2 && parameters[0].equals("REPEAT")) {
+                        // repeat n times
+                        String toWrite = "";
+
+                        Stack<String> helper = new Stack<>();
+                        String line2 = bufferedReader.readLine();
+                        while (!line2.equals("")) {
+                            helper.push(line2);
+
+                            toWrite += line2 + "\n";
+                            line2 = bufferedReader.readLine();
+                        }
+
+                        int many = 2;
+                        for (int times = 0; times < many; times++) {
+                            printWriter.print(toWrite);
+                        }
+
+                        for(int times = 0; times < many; times ++) {
+                            for (int counter = helper.size() - 1; counter >= 0; counter--) {
+                                remainedLines.push(helper.elementAt(counter));
+                            }
+                        }
+                    } else if (parameters.length == 0) {
+                    } else {
                         questions.add(new Question(question));
                     }
 
                     i = j;
                 }
             }
-            line = bufferedReader.readLine();
+            if (!remainedLines.empty()) {
+                line = remainedLines.pop();
+            } else {
+                line = bufferedReader.readLine();
+                printWriter.print(line + "\n");
+            }
         }
 
         bufferedReader.close();
         inputStream.close();
+        printWriter.close();
+        fileWriter.close();
+
 
         return questions.toArray(new Question[0]);
     }
@@ -107,7 +143,7 @@ public class BasicTemplateProvider implements TemplateProvider {
         FileWriter fileWriter = new FileWriter(file.getAbsolutePath());
         PrintWriter printWriter = new PrintWriter(fileWriter);
 
-        InputStream inputStream = new FileInputStream(this.template);
+        InputStream inputStream = new FileInputStream(this.modified);
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String line = bufferedReader.readLine();
 

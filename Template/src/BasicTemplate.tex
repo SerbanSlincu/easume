@@ -21,18 +21,28 @@
 \Large Phone: $!(PHONE NUMBER) \mid$ Email: !(EMAIL@ADDRESS.COM)
 \end{center}
 
-!(REPEAT)
+!(REPEAT,SECTION)
 \section*{!(SECTION)}
 \begin{tabularx}{\textwidth}{p{\fCVc}Xc}
 !(FROM) - !(TO) & \textbf{!(WHERE), !(JOB TITLE)}\\
+& \textbullet\ !(TEXTBULLET)\\
+& \textbullet\ !(TEXTBULLET)\\
+& \textbullet\ !(TEXTBULLET)\\
+!(FROM) - !(TO) & \textbf{!(WHERE), !(JOB TITLE)}\\
+& \textbullet\ !(TEXTBULLET)\\
+& \textbullet\ !(TEXTBULLET)\\
 & \textbullet\ !(TEXTBULLET)\\
 ~\\
 \end{tabularx}
 
 \section*{SKILLS AND ACTIVITIES}
 \begin{tabularx}{\textwidth}{p{\tCVc}Xc}
+!(REPEAT,SKILL SET)
 \textbf{!(SKILL SET)} &
 \textbullet\ !(SKILL) -- !(LEVEL)
+\textbullet\ !(SKILL) -- !(LEVEL)
+\textbullet\ !(SKILL) -- !(LEVEL)
 \\~\\
+
 \end{tabularx}
 \end{document}

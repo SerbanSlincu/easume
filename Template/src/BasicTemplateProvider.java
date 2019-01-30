@@ -44,6 +44,12 @@ public class BasicTemplateProvider implements TemplateProvider {
         Scanner scanner = new Scanner(System.in);
         Stack<String> remainedLines = new Stack<>();
 
+        // used for asking the questions: how many...
+        boolean added = false;
+        LinkedList<String> output = new LinkedList<>();
+        LinkedList<Integer> thTime = new LinkedList<>();
+        LinkedList<Integer> maxTime = new LinkedList<>();
+
         // file will be here at the end
         LinkedList<String> modified = new LinkedList<>();
         // where to do additions
@@ -63,7 +69,28 @@ public class BasicTemplateProvider implements TemplateProvider {
             // used for repeating details
             readLines += 1;
 
-            if(line.length() > 0 && !line.contains("%!(END"))
+            if(line.contains("%!(END") && output.size() > 0) {
+                output.removeLast();
+                thTime.removeLast();
+                maxTime.removeLast();
+
+                if(added && thTime.size() > 0) {
+                    int index = thTime.size() - 1;
+                    while(index >= 0 && thTime.get(index) >= maxTime.get(index)) {
+                        thTime.set(index, 1);
+                        index --;
+                    }
+                    if(index >= 0) {
+                        thTime.set(index, thTime.get(index) + 1);
+                    } else {
+                        output.clear();
+                        thTime.clear();
+                        maxTime.clear();
+                    }
+                    added = false;
+                }
+            }
+            else if(line.length() > 0 && !line.contains("%!(END"))
             for (int i = 1; i < line.length(); i++) {
                 if (line.charAt(i) == '(' && line.charAt(i - 1) == '!') {
                     String question = "";
@@ -102,15 +129,31 @@ public class BasicTemplateProvider implements TemplateProvider {
                             }
                         }
 
-                        System.out.println("How many " + parameters[1] + " would you like?");
+                        String whatIsNow = "";
+                        for(int index = 0; index < output.size(); index ++) {
+                            whatIsNow += output.get(index) + thTime.get(index) + " ";
+                        }
+
+                        if(whatIsNow.equals("")) {
+                            System.out.println("How many " + parameters[1] + "S would you like?");
+                        }
+                        else {
+                            System.out.println("How many " + parameters[1] + "S would you like for " + whatIsNow + "?");
+                        }
                         int many = scanner.nextInt();
                         // hack to fix off by one logic
                         if(remainedLines.size() > 0) many --;
 
+                        // modify the way output is asked
+                        added = true;
+                        output.add(parameters[1]);
+                        thTime.add(1);
+                        if(remainedLines.size() > 0) maxTime.add(many + 1);
+                        else maxTime.add(many);
+
                         for (int times = 0; times < many; times++) {
                             modified.addAll(currently,toWrite);
                         }
-
                         for(int times = 0; times < many; times ++) {
                             for (int counter = toWrite.size() - 1; counter >= 0; counter --) {
                                 remainedLines.push(toWrite.get(counter));
